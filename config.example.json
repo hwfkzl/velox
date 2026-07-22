@@ -1,4 +1,5 @@
 {
+  "_comment": "此文件仅为字段结构参考(运维用)。客户端运行时从 OSS 拉真实 config.json（详见 lib/core/services/remote_config_service.dart 和 .env 的 OSS_URL）。Fresh clone 后 **不需要** 复制此文件到 config.json。",
   "brand_name": "Global Fast",
   "api_base_urls": [
     "https://api.your-backend.example.com"
