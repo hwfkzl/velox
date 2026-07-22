@@ -67,6 +67,21 @@ jobs:
         if: github.event_name == 'push' || inputs.make_installer
         run: choco install innosetup --no-progress -y
 
+      - name: Download ChineseSimplified.isl (choco 包不带)
+        if: github.event_name == 'push' || inputs.make_installer
+        shell: pwsh
+        run: |
+          $langDir = 'C:\Program Files (x86)\Inno Setup 6\Languages'
+          $target = Join-Path $langDir 'ChineseSimplified.isl'
+          if (-not (Test-Path $target)) {
+            Write-Host "ChineseSimplified.isl 缺失，从官方源下载..."
+            $url = 'https://raw.githubusercontent.com/jrsoftware/issrc/main/Files/Languages/Unofficial/ChineseSimplified.isl'
+            Invoke-WebRequest -Uri $url -OutFile $target -UseBasicParsing
+            Write-Host "已放到 $target"
+          } else {
+            Write-Host "ChineseSimplified.isl 已存在"
+          }
+
       - name: Build installer
         if: github.event_name == 'push' || inputs.make_installer
         shell: pwsh

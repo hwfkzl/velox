@@ -55,9 +55,9 @@ CloseApplications=force
 RestartApplications=no
 
 [Languages]
+; English 放前面作为 fallback（安装向导会让用户选语言）
+Name: "english";    MessagesFile: "compiler:Default.isl"
 Name: "chinesesimp"; MessagesFile: "compiler:Languages\ChineseSimplified.isl"
-; 若 CI 里没装中文语言包,取消下一行注释以英文为 fallback:
-; Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "创建桌面快捷方式(&D)"; GroupDescription: "附加图标:"
