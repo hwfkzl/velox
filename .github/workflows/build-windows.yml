@@ -73,14 +73,26 @@ jobs:
         run: |
           $langDir = 'C:\Program Files (x86)\Inno Setup 6\Languages'
           $target = Join-Path $langDir 'ChineseSimplified.isl'
-          if (-not (Test-Path $target)) {
-            Write-Host "ChineseSimplified.isl 缺失，从官方源下载..."
-            $url = 'https://raw.githubusercontent.com/jrsoftware/issrc/main/Files/Languages/Unofficial/ChineseSimplified.isl'
-            Invoke-WebRequest -Uri $url -OutFile $target -UseBasicParsing
-            Write-Host "已放到 $target"
-          } else {
-            Write-Host "ChineseSimplified.isl 已存在"
+          if (Test-Path $target) {
+            Write-Host "ChineseSimplified.isl 已存在,跳过下载"
+            return
           }
+          # 官方主仓（Inno Setup Chinese Simplified 已升为正式语言,在 Files/Languages/）
+          $urls = @(
+            'https://raw.githubusercontent.com/jrsoftware/issrc/main/Files/Languages/ChineseSimplified.isl',
+            'https://raw.githubusercontent.com/kira-96/Inno-Setup-Chinese-Simplified-Translation/main/ChineseSimplified.isl'
+          )
+          foreach ($u in $urls) {
+            Write-Host "尝试 $u"
+            try {
+              Invoke-WebRequest -Uri $u -OutFile $target -UseBasicParsing -TimeoutSec 20
+              Write-Host "成功放到 $target"
+              return
+            } catch {
+              Write-Host "失败: $($_.Exception.Message)"
+            }
+          }
+          throw "所有下载源都失败"
 
       - name: Build installer
         if: github.event_name == 'push' || inputs.make_installer
