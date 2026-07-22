@@ -32,6 +32,12 @@ set(CMAKE_CXX_FLAGS_PROFILE "${CMAKE_CXX_FLAGS_RELEASE}")
 # Use Unicode for all projects.
 add_definitions(-DUNICODE -D_UNICODE)
 
+# 关掉 MSVC 新版本对 <experimental/coroutine> 的硬错误
+# (permission_handler_windows 等旧插件用了 experimental header,
+#  MSVC 14.51+ 从警告升级成 STL1011 error C2338)
+add_definitions(-D_SILENCE_EXPERIMENTAL_COROUTINE_DEPRECATION_WARNINGS)
+add_definitions(-D_SILENCE_ALL_MS_EXT_DEPRECATION_WARNINGS)
+
 # Compilation settings that should be applied to most targets.
 #
 # Be cautious about adding new options here, as plugins use this function by
