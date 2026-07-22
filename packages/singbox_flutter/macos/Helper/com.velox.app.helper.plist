@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.velox.app.helper</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Library/PrivilegedHelperTools/com.velox.app.helper</string>
+    </array>
+
+    <!-- Start immediately when loaded and stay alive indefinitely -->
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+
+    <!-- Throttle launchd restarts on crash: allow a 10-second grace period -->
+    <key>ThrottleInterval</key>
+    <integer>10</integer>
+
+    <key>StandardOutPath</key>
+    <string>/var/log/com.velox.app.helper.log</string>
+    <key>StandardErrorPath</key>
+    <string>/var/log/com.velox.app.helper.log</string>
+</dict>
+</plist>

@@ -1,0 +1,12 @@
+// Centralized signing values
+DEV_TEAM_ID = 489HG7CS3Y
+APP_BUNDLE_ID = cat.gamestart.user
+TUNNEL_BUNDLE_ID = cat.gamestart.user.PacketTunnel
+
+// AppStore profiles (TestFlight)
+RUNNER_PROFILE_SPECIFIER = cat.gamestart.user
+TUNNEL_PROFILE_SPECIFIER = cat.gamestart.user
+
+// AdHoc profiles (super-sign)
+RUNNER_ADHOC_PROFILE = cat.gamestart.user
+TUNNEL_ADHOC_PROFILE = cat.gamestart.user

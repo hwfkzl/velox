@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ic_launcher_background">#0A1628</color>
+    <!-- Splash 启动屏背景 = lib/core/theme/velox/velox_tokens.dart 的 bg0(深空近黑)。
+         scaffoldBackgroundColor 用的就是这个色,splash 沿用,启动衔接零白闪零突兀。 -->
+    <color name="velox_splash_bg">#061226</color>
+</resources>

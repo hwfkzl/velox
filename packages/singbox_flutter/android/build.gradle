@@ -1,0 +1,72 @@
+group 'com.velox.singbox_flutter'
+version '1.0-SNAPSHOT'
+
+buildscript {
+    ext.kotlin_version = '1.9.0'
+    repositories {
+        google()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.1.0'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        // Local AAR files
+        flatDir {
+            dirs 'libs'
+        }
+    }
+}
+
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+
+android {
+    namespace 'com.velox.singbox_flutter'
+    compileSdk 34
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+
+    defaultConfig {
+        minSdk 21
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
+    implementation 'androidx.core:core-ktx:1.12.0'
+
+    // sing-box libbox.aar
+    // 关键:plugin 是 AAR 项目,**不能 implementation 本地 .aar**(AGP 限制),
+    // 否则报"Direct local .aar file dependencies are not supported when building an AAR"。
+    // 改用 compileOnly:plugin 编译时类路径有 libbox(SingboxCore.kt 能用),
+    // 但 plugin AAR 产物不打包 libbox。最终 app 在 android/app/build.gradle.kts
+    // 用 implementation(fileTree(...))把 libbox.aar 真正打进 apk。
+    compileOnly fileTree(dir: 'libs', include: ['*.aar'])
+}

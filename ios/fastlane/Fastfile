@@ -1,0 +1,87 @@
+default_platform(:ios)
+
+def signing_defaults
+  {
+    ios_app_bundle_id: ENV["IOS_APP_BUNDLE_ID"] || "cat.gamestart.user",
+    tunnel_bundle_id: "#{ENV["IOS_APP_BUNDLE_ID"] || "cat.gamestart.user"}.PacketTunnel",
+    dev_team_id: ENV["DEV_TEAM_ID"] || "489HG7CS3Y",
+    runner_appstore_profile: ENV["RUNNER_APPSTORE_PROFILE"] || "cat.gamestart.user",
+    tunnel_appstore_profile: ENV["TUNNEL_APPSTORE_PROFILE"] || "cat.gamestart.user",
+    runner_adhoc_profile: ENV["RUNNER_ADHOC_PROFILE"] || "cat.gamestart.user",
+    tunnel_adhoc_profile: ENV["TUNNEL_ADHOC_PROFILE"] || "cat.gamestart.user"
+  }
+end
+
+platform :ios do
+  desc "Build and upload to TestFlight"
+  lane :tf_release do
+    setup_ci if ENV["CI"]
+    cfg = signing_defaults
+
+    increment_build_number(
+      xcodeproj: "Runner.xcodeproj",
+      build_number: ENV["BUILD_NUMBER"] || Time.now.strftime("%Y%m%d%H%M")
+    )
+
+    build_app(
+      workspace: "Runner.xcworkspace",
+      scheme: "Runner",
+      export_method: "app-store",
+      clean: true,
+      output_directory: "../build/ios/ipa",
+      output_name: "velox-testflight.ipa",
+      export_options: {
+        signingStyle: "manual",
+        provisioningProfiles: {
+          cfg[:ios_app_bundle_id] => cfg[:runner_appstore_profile],
+          cfg[:tunnel_bundle_id] => cfg[:tunnel_appstore_profile]
+        },
+        teamID: cfg[:dev_team_id]
+      }
+    )
+
+    if ENV["ASC_API_KEY_JSON"] && !ENV["ASC_API_KEY_JSON"].empty?
+      upload_to_testflight(
+        api_key_path: ENV["ASC_API_KEY_JSON"],
+        skip_waiting_for_build_processing: true,
+        changelog: ENV["CHANGELOG"] || "Automated TestFlight build"
+      )
+    else
+      UI.user_error!("ASC_API_KEY_JSON not set. I can build IPA, but cannot upload to TestFlight without this file path.")
+    end
+  end
+
+  desc "Build AdHoc IPA for super-sign distribution"
+  lane :supersign_release do
+    setup_ci if ENV["CI"]
+    cfg = signing_defaults
+
+    increment_build_number(
+      xcodeproj: "Runner.xcodeproj",
+      build_number: ENV["BUILD_NUMBER"] || Time.now.strftime("%Y%m%d%H%M")
+    )
+
+    build_app(
+      workspace: "Runner.xcworkspace",
+      scheme: "Runner",
+      export_method: "ad-hoc",
+      clean: true,
+      output_directory: "../build/ios/ipa",
+      output_name: "velox-supersign.ipa",
+      export_options: {
+        signingStyle: "manual",
+        provisioningProfiles: {
+          cfg[:ios_app_bundle_id] => cfg[:runner_adhoc_profile],
+          cfg[:tunnel_bundle_id] => cfg[:tunnel_adhoc_profile]
+        },
+        teamID: cfg[:dev_team_id]
+      }
+    )
+
+    if ENV["SUPERSIGN_UPLOAD_CMD"] && !ENV["SUPERSIGN_UPLOAD_CMD"].empty?
+      sh(ENV["SUPERSIGN_UPLOAD_CMD"])
+    else
+      UI.message("SUPERSIGN_UPLOAD_CMD not set. IPA generated at build/ios/ipa/velox-supersign.ipa")
+    end
+  end
+end

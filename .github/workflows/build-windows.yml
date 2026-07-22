@@ -1,0 +1,109 @@
+name: Build Windows
+
+on:
+  workflow_dispatch:
+    inputs:
+      make_installer:
+        description: '同时构建 Inno Setup 安装包'
+        type: boolean
+        default: true
+  # 覆盖两条路径:master 分支 push 触发 CI,v* tag push 触发 release。
+  # 注意:不能加 `paths:` 过滤,否则 tag push 时 GitHub 会把 paths 也
+  # 应用到 tag,导致 docs-only tag 静默不触发 release(常见坑)。
+  # 代价是每次 master push(包括 docs-only)都会跑一次 CI,~5 min。
+  push:
+    branches:
+      - master
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write  # tag push 时 softprops/action-gh-release 需要写权限
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    timeout-minutes: 40
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.38.9
+          channel: stable
+
+      - name: Flutter Version
+        run: flutter --version
+
+      - name: Prepare Assets And Env
+        run: |
+          if (!(Test-Path "assets/images")) { New-Item -ItemType Directory -Path "assets/images" -Force | Out-Null }
+          if (!(Test-Path "assets/flags")) { New-Item -ItemType Directory -Path "assets/flags" -Force | Out-Null }
+          if (!(Test-Path ".env")) {
+            if (Test-Path ".env.example") {
+              Copy-Item ".env.example" ".env"
+            } else {
+              New-Item -ItemType File -Path ".env" -Force | Out-Null
+            }
+          }
+
+      - name: Read version from pubspec
+        id: ver
+        shell: pwsh
+        run: |
+          $line = (Select-String -Path pubspec.yaml -Pattern '^version:\s*(\S+)').Matches[0]
+          $v = $line.Groups[1].Value -replace '\+.*',''
+          "version=$v" | Out-File -Append $env:GITHUB_OUTPUT
+          Write-Host "version=$v"
+
+      - name: Pack zip (build + validate + zip + sha256)
+        shell: pwsh
+        run: .\scripts\pack-windows.ps1 -NoPause
+
+      - name: Install Inno Setup
+        if: github.event_name == 'push' || inputs.make_installer
+        run: choco install innosetup --no-progress -y
+
+      - name: Build installer
+        if: github.event_name == 'push' || inputs.make_installer
+        shell: pwsh
+        run: |
+          $iscc = 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe'
+          if (-not (Test-Path $iscc)) { throw 'ISCC.exe not found' }
+          & $iscc /DAppVersion=${{ steps.ver.outputs.version }} installer\velox.iss
+          if ($LASTEXITCODE -ne 0) { throw "ISCC failed ($LASTEXITCODE)" }
+
+      - name: SHA-256 for installer
+        if: github.event_name == 'push' || inputs.make_installer
+        shell: pwsh
+        run: |
+          Get-ChildItem dist\*-setup.exe | ForEach-Object {
+            $h = (Get-FileHash -Algorithm SHA256 $_.FullName).Hash.ToLower()
+            "$h  $($_.Name)" | Set-Content -Path "$($_.FullName).sha256" -Encoding ASCII
+            Write-Host "$($_.Name)  $h"
+          }
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: velox-windows-x64-${{ steps.ver.outputs.version }}
+          path: |
+            dist/*.zip
+            dist/*.sha256
+            dist/*-setup.exe
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Attach to GitHub Release (only on tag push)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*.zip
+            dist/*.sha256
+            dist/*-setup.exe
+          fail_on_unmatched_files: false
+          generate_release_notes: true

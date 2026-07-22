@@ -1,0 +1,107 @@
+# 环境变量和敏感信息 —— 所有 .env 派生文件都不能入库
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.credentials
+*.credentials.json
+
+# 编辑器/脚本产生的备份文件（可能含旧密钥）
+*.bak
+*.bak.*
+*.backup
+*.pre-*.bak
+*.old
+
+# Claude Code 本地设置 / 记忆
+.claude/
+
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# sing-box binaries (large binary files)
+android/app/src/main/assets/sing-box*
+packages/singbox_flutter/android/libs/*.aar
+
+# Android release signing (NEVER commit)
+android/key.properties
+android/app/velox-release.jks
+
+# Windows build 中间产物
+windows/flutter/ephemeral/
+*.exe
+!windows/**/*.exe.manifest
+# 内核二进制必须入库，CI 编译时打包进 velox 分发
+!packages/singbox_flutter/windows/bin/mihomo.exe
+
+# iOS signing artifacts (NEVER commit — Apple developer identity)
+ios/*.p12
+ios/*.mobileprovision
+ios/*.certSigningRequest
+ios/*.cer
+ios/*.provisionprofile
+
+# iOS Libbox.xcframework (1.5 GB — exceeds GitHub 100MB limit;
+# 从 sing-box 官方下载,或用 SwiftPM/CocoaPods 引入)
+ios/Frameworks/Libbox.xcframework/
+
+# Xcode build cache
+ios/build/
+**/build/
+
+# Compiled release artifacts (contain baked-in .env values — TG token,OSS URLs)
+*.dmg
+*.pkg
+/dist/
+!/dist/.gitkeep
+
+# Local config with hardcoded backend URL (use OSS bootstrap instead)
+/config.json
+!/config.example.json
+
+# v2board 后端(独立项目,不属于 velox 客户端 repo)
+/tool/hello/

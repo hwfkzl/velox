@@ -1,0 +1,71 @@
+{
+  "brand_name": "Global Fast",
+  "api_base_urls": [
+    "https://api.your-backend.example.com"
+  ],
+  "api_health_check": {
+    "enabled": false,
+    "interval_sec": 60,
+    "probe_path": "/api/v1/guest/comm/config",
+    "timeout_ms": 3000
+  },
+  "fake_latency": {
+    "enabled": true,
+    "min_ms": 50,
+    "max_ms": 80
+  },
+  "telegram_url": "https://t.me/your-channel",
+  "crisp_id": "00000000-0000-0000-0000-000000000000",
+  "invite_base_url": "https://your-website.example.com/#/register?code=",
+  "website_url": "https://your-website.example.com",
+  "expire_notice": {
+    "enabled": true,
+    "days": 7,
+    "msg": "您好，系统发现您的账号还剩%s天就过期了，请记得及时续费哦~"
+  },
+  "faq_enabled": false,
+  "faq": [
+    {
+      "question": "如何连接VPN？",
+      "answer": "打开App，点击首页的连接按钮即可一键连接。"
+    },
+    {
+      "question": "连接速度慢怎么办？",
+      "answer": "请尝试切换到延迟更低的节点，或检查本地网络状况。"
+    },
+    {
+      "question": "如何续费套餐？",
+      "answer": "点击底部「订阅」Tab，选择适合的套餐进行购买。"
+    }
+  ],
+  "announcement": {
+    "enabled": true,
+    "id": "ann_20260101_001",
+    "title": "系统公告",
+    "content": "欢迎使用！\n\n如遇连接问题，请联系在线客服或更换节点重试。",
+    "button_text": "知道了"
+  },
+  "update": {
+    "android": {
+      "enabled": true,
+      "version": "1.0.0",
+      "download_url": "https://your-site.example.com/download/app.apk",
+      "message": "本次更新修复了若干问题，提升了连接稳定性。",
+      "must": false
+    },
+    "windows": {
+      "enabled": true,
+      "version": "1.0.0",
+      "download_url": "https://your-site.example.com/download/app-setup.exe",
+      "message": "本次更新修复了若干问题，提升了连接稳定性。",
+      "must": false
+    },
+    "macos": {
+      "enabled": true,
+      "version": "1.0.0",
+      "download_url": "https://your-site.example.com/download/app.dmg",
+      "message": "本次更新修复了若干问题，提升了连接稳定性。",
+      "must": false
+    }
+  }
+}

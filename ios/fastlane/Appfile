@@ -1,0 +1,4 @@
+app_identifier(ENV.fetch("IOS_APP_BUNDLE_ID", "cat.gamestart.user"))
+apple_id(ENV.fetch("APPLE_ID", ""))
+itc_team_id(ENV.fetch("ASC_TEAM_ID", ""))
+team_id(ENV.fetch("DEV_TEAM_ID", "489HG7CS3Y"))
